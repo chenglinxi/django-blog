@@ -1,0 +1,90 @@
+{% extends "back_end/article_list.html" %}
+{% block classify %}
+    {% if page %}
+        <div class="layui-card-body ">
+            <table class="layui-table layui-form">
+                <thead>
+                <tr>
+                    <th>标题</th>
+                    <th>作者</th>
+                    <th>分类目录</th>
+                    <th>日期</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+
+                {% for article in page %}
+                    <tr>
+                        <td>{{ article.title }}</td>
+                        <td>{{ article.user.username }}</td>
+                        <td>{{ article.classification.title }}</td>
+                        <td><p>最后修改</p>{{ article.create_time|date:"Y-m-d H:i" }}</td>
+                        <td>
+                            <button class="layui-btn layui-btn layui-btn-xs"
+                                    onclick="xadmin.open('编辑','/admin/article_updata_details/{{ article.pk }}/' )">
+                                <i class="layui-icon">&#xe642;</i>编辑
+                            </button>
+                            <button class="layui-btn-danger layui-btn layui-btn-xs"
+                                    onclick="member_recycle({{ article.pk }})" href="javascript:;"><i
+                                    class="layui-icon">&#xe640;</i>删除
+                            </button>
+                            <button class="layui-btn-normal layui-btn  layui-btn-xs"
+                                    onclick="member_submit({{ article.pk }})" href="javascript:;"><i
+                                    class="layui-icon">&#xe640;</i>提交审核
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% include "back_end/page.html" %}
+        </div>
+    {% else %}
+        {% include "back_end/error.html" %}
+    {% endif %}
+{% endblock %}
+{% block jquery %}
+    <script>
+        $("#show_all_article").attr("style", "display:none;");//隐藏div
+    </script>
+    <script>
+        /*用户-扔入回收站*/
+        function member_recycle(id) {
+            layer.confirm('确认要扔入回收站吗？', function () {
+                //发异步删除数据
+                $.ajax({
+                    url: "/admin/draft_recycle/",
+                    type: "post",
+                    data: {
+                        pid: id,
+                        csrfmiddlewaretoken: '{{ csrf_token }}',
+                    },
+                    success: function () {
+                        alert('删除成功！');
+                        window.location.reload();
+                    }
+                })
+            });
+        }
+
+        /*用户-提交审核*/
+        function member_submit(id) {
+            layer.confirm('确认要提交审核吗？', function () {
+                //发异步删除数据
+                $.ajax({
+                    url: "/admin/draft_review/",
+                    type: "post",
+                    data: {
+                        pid: id,
+                        csrfmiddlewaretoken: '{{ csrf_token }}',
+                    },
+                    success: function () {
+                        alert('提交成功！');
+                        window.location.reload();
+                    }
+                })
+            });
+        }
+    </script>
+{% endblock %}

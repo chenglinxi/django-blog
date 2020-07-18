@@ -1,0 +1,50 @@
+{% extends "back_end/article_list.html" %}
+{% block classify %}
+    <div class="layui-card-body ">
+        <table class="layui-table layui-form">
+            <thead>
+            <tr>
+                <th>标题</th>
+                <th>作者</th>
+                <th>分类目录</th>
+                <th>日期</th>
+                <th>浏览数</th>
+                <th>点赞数</th>
+                <th>评论数</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+
+            {% for article in page %}
+                <tr>
+                    <td>{{ article.title }}</td>
+                    <td>{{ article.user.username }}</td>
+                    <td>{{ article.classification.title }}</td>
+                    {% if article.is_release == 1 %}
+                        <td><p>已发布</p>{{ article.create_time|date:"Y-m-d H:i" }}</td>
+                    {% else %}
+                        <td><p>最后修改</p>{{ article.create_time|date:"Y-m-d H:i" }}</td>
+                    {% endif %}
+                    <td>{{ article.views }}</td>
+                    <td>{{ article.like_count }}</td>
+                    <td>{{ article.comment_count }}</td>
+                    <td>
+                        <button class="layui-btn layui-btn-xs"
+                                onclick="xadmin.open('查看','/admin/article_view/{{ article.pk }}/')">
+                            <i class="layui-icon">&#xe615;</i>查看
+                        </button>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% include "back_end/page.html" %}
+    </div>
+{% endblock %}
+{% block jquery %}
+    <script>
+        $("#show_all_article").attr("style", "display:none;");//隐藏div
+    </script>
+    <script src="/static/back_end/lib/layui/layui.js"></script>
+{% endblock %}

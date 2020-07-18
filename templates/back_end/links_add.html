@@ -1,0 +1,51 @@
+{% extends "back_end/master.html" %}
+{% block content %}
+
+    <div class="admin-div-back" style="padding-left: 100px;">
+        {% csrf_token %}
+        <div style="padding-top: 20px;float: none">
+            <p style="margin-top: 15px;font-size: 25px"> 友情链接标题：<input type="text" id='title' style="width: 400px;height: 30px;"></p>
+            <p style="margin-top: 15px;font-size: 25px"> 友情链接URL：<input type="text" id='url' style="width: 400px;height: 30px;"></p>
+        </div>
+        <div style="padding-top: 20px">
+            <button class="layui-btn layui-btn-lg layui-btn-warm" onclick="links_add()">提交</button>
+            &nbsp;&nbsp;<label id="error_messages" style="font-size: 20px;color: red"></label>
+        </div>
+    </div>
+{% endblock %}
+{% block jquery %}
+    <script src="/static/jquery-3.3.1.js"></script>
+    <script>
+        function links_add() {
+            var formData = new FormData();
+            var title = $("#title").val();
+            var url = $("#url").val()
+
+            if (title.length ===0){
+                $("#error_messages").text("标题不能为空！");
+            }else {
+                formData.append("title",title);
+                if (url.length === 0){
+                    $("#error_messages").text("URL不能为空！");
+                }else {
+                    formData.append("url",url);
+                }
+            }
+            formData.append("csrfmiddlewaretoken", $("[name='csrfmiddlewaretoken']").val());
+            //发异步提交数据
+            $.ajax({
+                url: "/admin/links_add/",
+                type: "post",
+                processData: false,
+                contentType: false,
+                data: formData,
+                success: function (data) {
+                    if (data.status === 1) {
+                        alert(data.msg);
+                        parent.location.reload(); //刷新到父亲对象（框架）
+                    }
+                },
+            });
+        }
+    </script>
+{% endblock %}

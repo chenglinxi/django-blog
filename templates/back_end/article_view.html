@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>查看文章</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static '/my_style.css' %}">
+    <link rel="stylesheet" href="{% static '/prism_patched.min.css' %}">
+    {# 语法高亮 #}
+</head>
+<body>
+<div class="div-back" id="test-editormd-view">
+    <p style="font-size: 30px; text-align: center;padding: 10px 0 10px 0">{{ details.article.title }}</p>
+        <div id="details_content">
+    <p>{{ details.content|safe }}</p>
+            </div>
+</div>
+</body>
+</html>

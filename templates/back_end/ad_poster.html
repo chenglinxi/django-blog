@@ -1,0 +1,231 @@
+{% extends "back_end/master.html" %}
+{% block content %}
+    <div class="layui-fluid">
+        <div class="layui-row layui-col-space15">
+            <div class="layui-col-md12">
+                <div class="layui-card" style="padding-top: 20px">
+                    <div class="layui-card-header">
+                        <button class="layui-btn layui-btn-danger" onclick="delAll()"><i class="layui-icon"></i>批量删除
+                        </button>
+                        <button class="layui-btn" onclick="xadmin.open('添加广告信息','/admin/ad_poster_add/',600,400)"><i
+                                class="layui-icon"></i>添加广告信息
+                        </button>
+                    </div>
+                    <div class="layui-card-body ">
+                        <table class="layui-table">
+                            <thead>
+                            <tr>
+                                <th>
+                                    <input type="checkbox" onclick="change()" id="all" name="all" value="全选"
+                                           style="display: inline"/>&nbsp;全选
+                                </th>
+                                <th>ID</th>
+                                <th>广告标题</th>
+                                <th>广告图片<p style="font-size: 10px;color: #ff070c">(点击图片可以放大)</p></th>
+                                <th>广告链接</th>
+                                <th>创建时间</th>
+                                <th>是否启用</th>
+                                <th>操作</th>
+                            </thead>
+                            <tbody id="layer-photos-demo">
+                            {% for ad in ad_poster %}
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" id="che" name="che" style="display: inline">
+                                    </td>
+                                    <td name="id_pk">{{ ad.pk }}</td>
+                                    <td>{{ ad.title }}</td>
+                                    <td><img src="/media/{{ ad.ad_photo }}" style="width:100px;height: 40px;"></td>
+                                    <td>{{ ad.ad_url }}</td>
+                                    <td>{{ ad.create_time|date:"Y-m-d H:i" }}</td>
+                                    {% if ad.is_show == 1 %}
+                                        <td class="td-status">
+                                            <span class="layui-btn layui-btn-normal layui-btn-mini">已启用</span></td>
+                                        <td class="td-manage">
+                                            <a onclick="member_stop({{ ad.pk }})" href="#" title="停用"
+                                               style="padding-left: 10px">
+                                                <i class="layui-icon">&#xe601;</i>
+                                            </a>
+                                            <a title="编辑" onclick="xadmin.open('编辑','admin/ad_poster_update/{{ ad.pk }}/')"
+                                               href="javascript:;"
+                                               style="padding-left: 10px">
+                                                <i class="layui-icon">&#xe642;</i>
+                                            </a>
+                                            <a title="删除" onclick="member_del({{ ad.pk }})" href="#"
+                                               style="padding-left: 10px">
+                                                <i class="layui-icon">&#xe640;</i>
+                                            </a>
+                                        </td>
+                                    {% else %}
+                                        <td class="td-status">
+                                            <span class="layui-btn layui-btn-normal layui-btn-mini layui-btn-disabled">已停用</span>
+                                        </td>
+                                        <td>
+                                            <a onclick="member_up({{ ad.pk }})" href="javascript:;" title="启用"
+                                               style="padding-left: 10px">
+                                                <i class="layui-icon">&#xe62f;</i>
+                                            </a>
+                                            <a title="编辑" onclick="xadmin.open('编辑','admin/ad_poster_update/{{ ad.pk }}/')"
+                                               href="javascript:;"
+                                               style="padding-left: 10px">
+                                                <i class="layui-icon">&#xe642;</i>
+                                            </a>
+                                            <a title="删除" onclick="member_del({{ ad.pk }})" href="javascript:;"
+                                               style="padding-left: 10px">
+                                                <i class="layui-icon">&#xe640;</i>
+                                            </a>
+                                        </td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block jquery %}
+    <script src="/static/back_end/lib/layui/layui.all.js"></script>
+    <script type="text/javascript">
+        /*图片放大*/
+        layer.photos({
+            photos: '#layer-photos-demo',
+            anim: 0,
+        });
+    </script>
+    <script>
+        /*用户-停用*/
+        function member_stop(id) {
+            layer.confirm('确认要停用吗？', function () {
+                //发异步把用户状态进行更改
+                $.ajax({
+                    url: "/admin/ad_poster_is_show/",
+                    type: "post",
+                    data: {
+                        pid: id,
+                        is_show: 1,
+                        csrfmiddlewaretoken: '{{ csrf_token }}',
+                    },
+                    success: function (data) {
+                        if (data.status === 1) {
+                            layer.msg('已停用!', {icon: 5, time: 1000});
+                            window.location.reload();
+                        }
+                    },
+                })
+            })
+        }
+        /*用户-启用*/
+        function member_up(id) {
+            layer.confirm('确认要启用吗？', function () {
+                //发异步把用户状态进行更改
+                $.ajax({
+                    url: "/admin/ad_poster_is_show/",
+                    type: "post",
+                    data: {
+                        pid: id,
+                        is_show: 0,
+                        csrfmiddlewaretoken: '{{ csrf_token }}',
+                    },
+                    success: function (data) {
+                        if (data.status === 1) {
+                            layer.msg('已启用!', {icon: 5, time: 1000});
+                            window.location.reload();
+                        }
+                    },
+                })
+            })
+        }
+        /*用户-删除*/
+        function member_del(id) {
+            layer.confirm('确认要删除吗？', function (index) {
+                //发异步删除数据
+                $.ajax({
+                    url: "/admin/ad_poster_del/",
+                    type: "post",
+                    data: {
+                        pid: id,
+                        csrfmiddlewaretoken: '{{ csrf_token }}',
+                    },
+                    success: function (data) {
+                        if (data.status === 1) {
+                            alert(data.msg);
+                            layer.msg('已删除!', {icon: 1, time: 1000});
+                            window.location.reload();
+                        } else {
+                            alert('删除失败！');
+                        }
+                    },
+                });
+            });
+        }
+
+        var allpro = document.getElementsByName("che");
+
+        //全选方法
+        function change() {
+            //获取全选按钮
+            var all = document.getElementById("all");
+            //全选按钮被选中时，遍历所有按钮
+            if (all.checked) {
+                for (var i = 0; i < allpro.length; i++) {
+                    if (allpro[i].type === "checkbox") {
+                        allpro[i].checked = true;
+
+                    }
+                }
+                //全选按钮未被选中时
+            } else {
+                for (var i = 0; i < allpro.length; i++) {
+                    if (allpro[i].type === "checkbox") {
+                        allpro[i].checked = false;
+                    }
+                }
+            }
+        }
+
+        //批量删除
+        function delAll() {
+            var ck = $("input:checked[name='che']");
+            if (ck.length === 0) {
+                alert("请选择,然后进行删除");
+                return;
+            }
+            var f = confirm("确认删除!!");
+            if (!f) {
+                return;
+            }
+            ids = ck.parent('td').parent('tr').find("[name='id_pk']").map(function () {
+                return this.innerHTML
+            }).get().join();
+            $.ajax({
+                url: "/admin/ad_poster_all_del/",
+                type: "post",
+                data: {
+                    pid: ids,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success: function (data) {
+                    if (data.status === 1) {
+                        alert(data.msg);
+                        window.location.reload();
+                    } else {
+                        alert('删除失败！');
+                    }
+                },
+            });
+        }
+    </script>
+
+    <script>
+        var _hmt = _hmt || [];
+        (function () {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?b393d153aeb26b46e9431fabaf0f6190";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+{% endblock %}

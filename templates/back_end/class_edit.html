@@ -1,0 +1,55 @@
+{% extends "back_end/master.html" %}
+{% block content %}
+    <div style="margin-left:40%; margin-top: 20%">
+        <input id="title" name="title" style="width: 200px;height: 30px" placeholder="{{ article_class }}">
+
+        <button style="width: 70px; height: 30px" class="layui-btn layui-btn-warm"
+                onclick="class_edit({{ article_class.pk }})">提交修改
+        </button>
+        <br>
+        <label id="errors" style="color: red"></label>
+    </div>
+{% endblock %}
+{% block jquery %}
+    <script>
+        {# 将整个html里的input标签加上 autocomplete='off'#}
+        $(function () {
+            $('input:not([autocomplete])').attr('autocomplete', 'off');
+
+        });
+    </script>
+    <script>
+        function class_edit(id) {
+            var title = $("#title").val();
+            if (title.length === 0) {
+                $("#errors").text("修改内容不能为空！")
+            } else {
+                //发异步修改数据
+                $.ajax({
+                    url: "/admin/article_class_edit/" + id + '/',
+                    type: "post",
+                    data: {
+                        "pid": id,
+                        "title": title,
+                        csrfmiddlewaretoken: '{{ csrf_token }}',
+                    },
+                    success: function (data) {
+                        if (data["status"] === 1) {
+                            alert('修改成功！');
+                            parent.location.reload(); //刷新到父亲对象（框架）
+                        } else {
+                            alert('已经存在该类型，请重新输入！');
+                            window.location.reload(); //刷新当前页
+                        }
+                    },
+
+                });
+            }
+        }
+
+        // 当input框绑定获取焦点的事件，就将错误信息清空
+        $("#title").focus(function () {
+            $("#errors").text("");
+        });
+    </script>
+{% endblock %}

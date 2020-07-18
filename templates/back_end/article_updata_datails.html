@@ -1,0 +1,284 @@
+{% extends "back_end/master.html" %}
+{% block style %}
+    <style>
+        {#layui搭建后台，编辑器使用editor.md，有序列表和无序列表样式和layui冲突#}
+        ol > li {
+            list-style-type: decimal;
+        }
+
+        ul > li {
+            list-style: disc;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="admin-div">
+        {% csrf_token %}
+        <p style="font-size: 30px;margin-top: 10px;margin-left: 10px">修改文章</p>
+        <div class="update-div-left">
+            <div class="admin-div-back" style="margin-top: 10px;margin-bottom: 15px;">
+                <input type="text" name="title" id="title" class="form-control" style="width: 100%; font-size: 20px"
+                       value="{{ article.title }}">
+            </div>
+            <div id="test-editormd">
+                <textarea name="article_content" style="display:none;" id="article_content">
+                    {{ details.content }}
+                </textarea>
+            </div>
+        </div>
+        <div class="update-div-right">
+            <div class="layui-collapse" style="margin-top: 10px;">
+                <div class="layui-colla-item admin-div-back ">
+                    <h2 class="layui-colla-title" style="background-color: #fbfbfb;color:#8b8484 ">发布</h2>
+                    <div class="layui-colla-content layui-show">
+                        <input style="float: left" type="submit" class="layui-btn layui-btn-warm" id="btnSubmit"
+                               name="btnSubmit"
+                               value="提交修改" onclick="article_update()">
+                        <div style="clear:both">
+                            <p style="font-size: 14px; color: #8b8484;padding-top: 10px;"><i
+                                    class="layui-icon layui-icon-file"></i>&nbsp;状态：草稿</p>
+                        </div>
+                        <div style="margin-top: 10px;text-align: center">
+                            <label id="error_messages"
+                                   style="color: red;font-size: 15px;"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-collapse" style="margin-top: 10px;">
+                <div class="layui-colla-item admin-div-back ">
+                    <h2 class="layui-colla-title" style="background-color: #fbfbfb;color:#8b8484 ">选择分类</h2>
+                    <div class="layui-colla-content layui-show">
+                        <select id="class" name="class" multiple="multiple" size="{{ class_list.count }}"
+                                style="width: 100%;font-size: 15px;margin-bottom: 5px; color: #8b8484">
+                            {% for class in class_list %}
+                                <option>{{ class }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-collapse" style="margin-top: 10px;">
+                <div class="layui-colla-item admin-div-back ">
+                    <h2 class="layui-colla-title" style="background-color: #fbfbfb;color:#8b8484 ">文章封面</h2>
+                    <div class="layui-colla-content layui-show">
+                        <p style="color: red;margin-top: 3px">（点击图片上传封面图片）</p>
+                        <div style="margin-top: 5px">
+                            <label for="id_avatar"><img style="width: 100%; height: 120px;" id="avatar-img"
+                                                        src="/media/{{ article.cover_photo }}"
+                                                        alt=""></label>
+                        </div>
+                        <input accept="image/*" type="file" name="avatar" id="id_avatar"
+                               style="display: none">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-collapse" style="margin-top: 10px;">
+                <div class="layui-colla-item admin-div-back ">
+                    <h2 class="layui-colla-title" style="background-color: #fbfbfb;color:#8b8484 ">标签</h2>
+                    <div class="layui-colla-content layui-show">
+                        <input type="text" id="tag_name" style="width: 100%; height: 30px" value="{{ article_tags }}">
+                        <p style="color: #7a96e7;margin-top: 5px;text-align: center">多个标签请用英文逗号（,）分开</p>
+                    </div>
+                    <div id="tags_div" style="margin: 10px">
+
+                    </div>
+                    <a href="javascript:void(0);" onclick="show_tags()"
+                       style="margin: 10px;font-size: 16px;color: #2C662D">常用标签</a>
+                    <div id="show_tag" style="display: block; margin-top: 10px;padding-bottom: 10px;">
+                        <!-- 标签 -->
+                        {% for tag in tags %}
+                            <a href="javascript:void(0);" onclick="select_tag(this)"
+                               style="margin-left: 10px;font-size: 15px;color: #056846"><i
+                                    class="layui-icon layui-icon-note"
+                                    style="color: #ee137b;"></i>{{ tag.name }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block jquery %}
+    <script src="/static/plugins/editor.md/editormd.js"></script>
+    <script>
+        {# 将整个html里的input标签加上 autocomplete='off'#}
+        $(function () {
+            $('input:not([autocomplete])').attr('autocomplete', 'off');
+        });
+    </script>
+    <script>
+        //注意：折叠面板 依赖 element 模块，否则无法进行功能性操作
+        layui.use('element', function () {
+            var element = layui.element;
+
+            //…
+        });
+    </script>
+
+    <script>
+        function select_tag(obj) {
+            var tag_name = obj.innerText;
+            var tag_p = '<p class="layui-badge-rim" style="width: 100px;margin-left: 10px;font-size: 14px">' + tag_name + '&nbsp;&nbsp;<a href="javascript:void(0);" onclick="remove_tag(this)"><i class="layui-icon layui-icon-close" style="color: #ED582B;"></i></a></p>';
+            $("#tags_div").append(tag_p);
+        }
+    </script>
+
+    <script>
+        function remove_tag(obj) {
+            $(obj).parent().remove();
+        }
+    </script>
+
+    <script>
+        function show_tags() {
+            if (document.getElementById("show_tag").style.display !== "block") {
+                document.getElementById("show_tag").style.display = "block";
+            } else {
+                document.getElementById("show_tag").style.display = "none";
+            }
+        }
+    </script>
+
+    <script>
+        var testEditor;
+        $(function () {
+            $.get("/static/plugins/editor.md/test.md", function (md) {
+                testEditor = editormd("test-editormd", {
+                    width: "100%",
+                    height: 800,
+                    syncScrolling: "single",
+                    path: "/static/plugins/editor.md/lib/",
+                    /**设置主题颜色 把这些注释去掉主题就是黑色的了*/
+                        {#editorTheme: "pastel-on-dark",#}
+                    theme: "dark",
+                    {#previewTheme: "dark",#}
+                    markdown: md,
+                    codeFold: true,
+                    //syncScrolling : false,
+                    saveHTMLToTextarea: true,    // 保存 HTML 到 Textarea
+                    searchReplace: true,
+                    //watch : false,                // 关闭实时预览
+                    htmlDecode: "style,script,iframe|on*",            // 开启 HTML 标签解析，为了安全性，默认不开启
+                    //toolbar  : false,             //关闭工具栏
+                    //previewCodeHighlight : false, // 关闭预览 HTML 的代码块高亮，默认开启
+                    emoji: false,   // 启用emoji表情
+                    taskList: true,    // 启用tasklist
+                    tocm: true,         // Using [TOCM]
+                    tex: true,                   // 开启科学公式TeX语言支持，默认关闭
+                    flowChart: true,             // 开启流程图支持，默认关闭
+                    sequenceDiagram: true,       // 开启时序/序列图支持，默认关闭,
+                    imageUpload: true, //开启图片上传
+                    imageFormats: ["jpg", "jpeg", "gif", "png", "bmp"], //支持上传的图片格式
+                    imageUploadURL: "/admin/api-upload-url/",  //处理图片上传的后端URL地址
+                    {#imageCsrfToken: "{% csrf_token %}",#}
+                    onload: function () {
+                        console.log('onload', this);
+                    },
+                    toolbarIcons: function () {  //自定义工具栏
+                        {#return editormd.toolbarModes['full']; // full, simple, mini#}
+                        return [
+                            "bold", "del", "italic", "quote", "ucwords", "uppercase", "lowercase", "|",
+                            "h1", "h2", "list-ul", "list-ol", "hr", "|",
+                            "link", "reference-link", "image", "code", "code-block", "table", "html-entities", "|",
+                            "watch", "preview", "fullscreen", "search", "|",
+                            "help"
+                        ];
+                    },
+                });
+                testEditor.config({
+                    tocDropdown: false,
+                    tocTitle: "目录",
+                });//TOC下拉菜单
+            });
+        });
+    </script>
+    <script>
+        // 找到封面的input标签绑定change事件
+        $("#id_avatar").change(function () {
+            // 1. 创建一个读取文件的对象
+            var fileReader = new FileReader();
+            // 取到当前选中的封面文件
+            // console.log(this.files[0]);
+            // 读取你选中的封面文件
+            fileReader.readAsDataURL(this.files[0]);  // 读取文件是需要时间的
+            fileReader.onload = function () {
+                // 2. 等上一步读完文件之后才 把图片加载到img标签中
+                $("#avatar-img").attr("src", fileReader.result);
+            };
+        })
+    </script>
+    <script>
+        function article_update() {
+            var formData = new FormData();
+            var tag_select = [];
+            $("#tags_div p").each(function () {
+                var con = $(this).text()
+                tag_select.push(con)
+            });
+            var tag_input = $("#tag_name").val()
+            var title = $("#title").val()
+            var class_title = $("#class").val()
+            var article_content = $("#article_content").val()
+            var avater = $("#id_avatar")[0].files[0]
+            if (title.length === 0) {
+                $("#error_messages").text('标题不能为空！');
+            } else {
+                formData.append("title", title);
+                if (class_title.length === 0) {
+                    $("#error_messages").text('分类不能为空！请选择分类！');
+                } else {
+                    formData.append("class", class_title);
+                    if (article_content.length === 0) {
+                        $("#error_messages").text('文章内容不能为空，请输入！');
+                    } else {
+                        formData.append("article_content", article_content);
+                        if (tag_select.length === 0 && tag_input.length === 0) {
+                            $("#error_messages").text('标签不能为空！');
+                        } else if (tag_input.length === 0 && tag_select !== 0){
+                            formData.append("tags", tag_select);
+                        } else if (tag_input.length !== 0 && tag_select.length === 0) {
+                            formData.append("tags", tag_input);
+                        } else if (tag_input.length !== 0 && tag_select.length !== 0) {
+                            var tag = tag_select + ',' + tag_input;
+                            formData.append("tags", tag);
+                        }
+                    }
+                }
+            }
+            formData.append("cover_photo", avater);
+            formData.append("csrfmiddlewaretoken", "{{ csrf_token }}");
+
+            //发异步提交数据
+            $.ajax({
+                url: "/admin/article_updata_details/{{ article.pk }}/",
+                type: "post",
+                processData: false,
+                contentType: false,
+                data: formData,
+                success: function (data) {
+                    if (data.status === 1) {
+                        alert(data.msg);
+                        parent.location.reload(); //刷新到父亲对象（框架）
+                    }
+                },
+            });
+        }
+
+        // 当input框绑定获取焦点的事件，就将错误信息清空
+        $("#title").focus(function () {
+            $("#error_messages").text("");
+        });
+        $("#class").focus(function () {
+            $("#error_messages").text("");
+        });
+        $("#tag_name").focus(function () {
+            $("#error_messages").text("");
+        });
+        $("#show_tag a").click(function () {
+            $("#error_messages").text("");
+        })
+    </script>
+{% endblock %}
