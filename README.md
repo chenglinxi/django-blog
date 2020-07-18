@@ -66,8 +66,8 @@
 │   ├── master.html     #文章标签模块
 │   ├── update_password.html    #忘记密码重设页面
 │   └── weixin.html 
-├── notice
-│   └── list.html
+├── notice 
+    └── list.html
 
 
 
