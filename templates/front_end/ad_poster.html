@@ -1,0 +1,11 @@
+{# 广告页面 #}
+<ul class="my_ul">
+    {% for ad in ad_list %}
+    <li>
+        <div style="padding-top: 10px;">
+        <a href="{{ ad.ad_url }}"><img class="li-img" src="/media/{{ ad.ad_photo }}"></a>
+    </div>
+    </li>
+    {% endfor %}
+
+</ul>

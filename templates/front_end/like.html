@@ -1,0 +1,29 @@
+<div class="div-back" style="margin-top: 10px;">
+    <div style="text-align: left;padding-top: 10px;font-size: 18px;color:#737373;padding-left: 20px;">猜你喜欢</div>
+    <div style="margin-top: 10px; border-top: solid #00a67c 1px;"></div>
+    <div style="padding: 0 5px 10px 10px;width: 100%;">
+        <table style="width: 100%;margin-top: 10px;font-size: 13px;">
+            <tbody>
+            {% for like in likes %}
+                <tr style="padding-top: 5px;" id="like_you_tr">
+                        <td rowspan="2" style="width: 30%;">
+                             <a id="like_you_imp" href="/acticle_details/{{ like.pk }}/">
+                            <img src="/media/{{ like.cover_photo }}" alt="{{ like.title }}"
+                                 style="width:100%;height: 46px;padding-top: 5px;"></a>
+                        </td>
+                        <td style="width: 70%;line-height: 34px;padding-left: 10px;">
+                            <a id="like_you_p" href="/acticle_details/{{ like.pk }}/">
+                            <p style="height: 35px;display: -webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow: hidden;">
+                                {{ like.title }}</p></a>
+                        </td>
+                </tr>
+                <tr style="border-bottom:1px solid #b4adad;border-collapse: separate; border-spacing: 10px;">
+                    <td style="padding-left: 10px;color: #999;"><span>{{ like.create_time|date:'Y-m-d' }}</span>
+                        <span style="margin-left: 10px">{{ like.comment_count }}评论</span></td>
+                </tr>
+
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

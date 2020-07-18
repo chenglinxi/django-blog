@@ -1,0 +1,32 @@
+{% if page.paginator.num_pages > 1 %}
+<div class="home_page" style="width: 100%;">
+    <ul>
+        <li><a href="?page=1">首页</a></li>
+        {% if page.has_previous %}
+            <li><a href="?{{ page.previous_page_number.querystring }}">&lsaquo;&lsaquo; </a></li>
+        {% else %}
+            <li><span class="span_disabled">&lsaquo;&lsaquo; </span></li>
+        {% endif %}
+        {% for page in page.pages %}
+        {% if page %}
+        {% ifequal page page.number %}
+        <li><a href="?{{ page.querystring }}">{{ page }}</a></li>
+        {% else %}
+        <li id="li_active"><a id="a{{ page }}" href="?{{ page.querystring }}">{{ page }}</a></li>
+        {% endifequal %}
+        {% else %}
+        ...
+        {% endif %}
+        {% endfor %}
+        {% if page.has_next %}
+            <li><a href="?{{ page.next_page_number.querystring }}"> &rsaquo;&rsaquo;</a>
+            </li>
+        {% else %}
+            <li><span class="span_disabled"> &rsaquo;&rsaquo;</span></li>
+        {% endif %}
+        <li><a href="?page={{ page.paginator.num_pages }}">尾页</a></li>
+
+    </ul>
+</div>
+{% else %}
+{% endif %}

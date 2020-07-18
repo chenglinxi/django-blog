@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>邮箱确认表单</title>
+    {% load static %}
+    <link rel="SHORTCUT ICON" href="{% static "/img/favicon.ico" %}"/>
+    <link rel="stylesheet" href="{% static '/my_style.css' %}">
+</head>
+<body background="/static/img/login_bj.jpg">
+<div id="confirm_index">
+    <p>{{ msg }}&nbsp;<a href="/login/">点击登录</a></p>
+</div>
+
+<div id="login_other">
+    <p><span><a href="/login/">登录</a></span>&nbsp;|&nbsp;<span><a href="/register/">注册</a></span></p>
+    <p><a href="/home/">返回主页</a></p>
+</div>
+</body>
+</html>

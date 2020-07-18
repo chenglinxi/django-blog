@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>登录表单</title>
+    {% load static %}
+    <link rel="SHORTCUT ICON" href="{% static "/img/favicon.ico" %}"/>
+    <link rel="stylesheet" href="{% static '/my_style.css' %}">
+</head>
+<body background="/static/img/login_bj.jpg">
+<div id="login_head">
+    <p>本站点欢迎您！</p>
+</div>
+<div id="login_errors">
+    <p id="login_error"></p>
+</div>
+<div id="login_index">
+    <div id="login_form">
+        {% csrf_token %}
+        <table id="login_table">
+            <tbody>
+            <tr>
+                <td><p>用户名或电子邮件地址</p><input type="text" id="username"></td>
+            </tr>
+            <tr>
+                <td><p>密码</p><input type="password" id="password"></td>
+            </tr>
+            <tr>
+                <td>
+                    <button id="login-button">登 录</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="form-group">
+            <!-- 放置极验的滑动验证码 -->
+            <div id="popup-captcha"></div>
+        </div>
+    </div>
+</div>
+<div id="login_other">
+    <p><span><a href="/register/">注册</a></span>&nbsp;|&nbsp;<span><a href="/forgot_password/">忘记密码?</a></span></p>
+    <p><a href="/home/">返回主页</a></p>
+</div>
+<script src="{% static '/jquery-3.3.1.js' %}"></script>
+<!-- 引入封装了failback的接口--initGeetest -->
+<script src="http://static.geetest.com/static/tools/gt.js"></script>
+<script>
+    {# 将整个html里的input标签加上 autocomplete='off'#}
+    $(function () {
+        $('input:not([autocomplete])').attr('autocomplete', 'off');
+
+    });
+</script>
+<script>
+    // 极验 发送登录数据的
+    var handlerPopup = function (captchaObj) {
+        // 成功的回调
+        captchaObj.onSuccess(function () {
+            var validate = captchaObj.getValidate();
+            // 1. 取到用户填写的用户名和密码 -> 取input框的值
+            var username = $("#username").val();
+            var password = $("#password").val();
+            $.ajax({
+                url: "/login/", // 进行二次验证
+                type: "post",
+                dataType: "json",
+                data: {
+                    username: username,
+                    password: password,
+                    csrfmiddlewaretoken: "{{ csrf_token }}",
+                    geetest_challenge: validate.geetest_challenge,
+                    geetest_validate: validate.geetest_validate,
+                    geetest_seccode: validate.geetest_seccode
+                },
+                success: function (data) {
+                    console.log(data);
+                    if (data.status===1) {
+                        // 有错误，在页面上提示
+                        $("#login_error").text(data.msg).addClass("errors");
+                    }else {
+                        window.location.href = '/home/'
+                    }
+                }
+            });
+        });
+
+        $("#login-button").click(function () {
+            captchaObj.show();
+        });
+        // 将验证码加到id为popup-captcha的元素里
+        captchaObj.appendTo("#popup-captcha");
+        // 更多接口参考：http://www.geetest.com/install/sections/idx-client-sdk.html
+
+    };
+    // 当input框获取焦点时将之前的错误清空
+    $("#username,#password").focus(function () {
+        // 将之前的错误清空
+        $("#login_error").text("").removeClass("errors");
+    });
+
+    // 验证开始需要向网站主后台获取id，challenge，success（是否启用failback）
+    $.ajax({
+        url: "/pc-geetest/register?t=" + (new Date()).getTime(), // 加随机数防止缓存
+        type: "get",
+        dataType: "json",
+        success: function (data) {
+            // 使用initGeetest接口
+            // 参数1：配置参数
+            // 参数2：回调，回调的第一个参数验证码对象，之后可以使用它做appendTo之类的事件
+            initGeetest({
+                gt: data.gt,
+                challenge: data.challenge,
+                product: "popup", // 产品形式，包括：float，embed，popup。注意只对PC版验证码有效
+                offline: !data.success // 表示用户后台检测极验服务器是否宕机，一般不需要关注
+                // 更多配置参数请参见：http://www.geetest.com/install/sections/idx-client-sdk.html#config
+            }, handlerPopup);
+        }
+    })
+
+</script>
+
+</body>
+</html>

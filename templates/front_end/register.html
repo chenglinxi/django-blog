@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>注册表单</title>
+    {% load static %}
+    <link rel="SHORTCUT ICON" href="{% static "/img/favicon.ico" %}"/>
+    <link rel="stylesheet" href="{% static '/my_style.css' %}">
+</head>
+<body background="/static/img/login_bj.jpg">
+<div id="register_head">
+    <p>在这个站点注册</p>
+</div>
+<div id="errors">
+    <div id="username_errors">
+        <p id="error_username">{{ form_obj.username.errors.0 }}</p>
+    </div>
+    <div id="email_errors">
+        <p id="error_email">{{ form_obj.email.errors.0 }}</p>
+    </div>
+    <div id="password_errors">
+        <p id="error_password">{{ form_obj.password.errors.0 }}</p>
+    </div>
+    <div id="re_password_errors">
+        <p id="error_re_password">{{ form_obj.re_password.errors.0 }}</p>
+    </div>
+</div>
+<div id="register_index">
+    <div id="register_form">
+        <table id="register_table">
+            <tbody>
+            <tr>
+                <td><p><label for="{{ form_obj.username.id_for_label }}">{{ form_obj.username.label }}</label></p>
+                    {{ form_obj.username }}</td>
+            </tr>
+            <tr>
+                <td><p><label for="{{ form_obj.email.id_for_label }}">{{ form_obj.email.label }}</label></p>
+
+                    {{ form_obj.email }} <span class="help-block">{{ form_obj.email.errors.0 }}</span>
+                </td>
+            </tr>
+            <tr>
+                <td><p><label for="{{ form_obj.password.id_for_label }}">{{ form_obj.password.label }}</label></p>
+                    {{ form_obj.password }}</td>
+            </tr>
+            <tr>
+                <td><p><label for="{{ form_obj.re_password.id_for_label }}">{{ form_obj.re_password.label }}</label></p>
+                    {{ form_obj.re_password }}</td>
+            </tr>
+            <tr>
+                <td><p>注册确认信将会发送到您的邮箱.</p></td>
+            </tr>
+            <tr>
+                <td>
+                    <button id="reg-submit">注 册</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div id="login_other">
+    <p><span><a href="/login/">登录</a></span>&nbsp;|&nbsp;<span><a href="/forgot_password/">忘记密码?</a></span></p>
+    <p><a href="/home/">返回主页</a></p>
+</div>
+<script src="{% static '/jquery-3.3.1.js' %}"></script>
+<script>
+    {# 将整个html里的input标签加上 autocomplete='off'#}
+    $(function () {
+        $('input:not([autocomplete])').attr('autocomplete', 'off');
+
+    });
+</script>
+<script>
+    // AJAX提交注册的数据
+    $("#reg-submit").click(function () {
+        // 取到用户填写的注册数据，向后端发送AJAX请求
+        var formData = new FormData();
+        formData.append("username", $("#id_username").val());
+        formData.append("password", $("#id_password").val());
+        formData.append("re_password", $("#id_re_password").val());
+        formData.append("email", $("#id_email").val());
+        formData.append("csrfmiddlewaretoken", '{{ csrf_token }}');
+        $.ajax({
+            url: "/register/",
+            type: "post",
+            processData: false,
+            contentType: false,
+            data: formData,
+            success: function (data) {
+                if (data.status === 1) {
+                    // 有错误就展示错误
+                    // 将报错信息填写到页面上
+                    $.each(data.msg, function (k, v) {
+                        // console.log("id_"+k, v[0]);
+                        // console.log($("#id_"+k));
+                        $("#error_" + k).text(v[0]).addClass("has-error errors");
+                    })
+
+                } else if (data.status === 2) {
+                    alert(data.msg);
+                } else {
+                    // 没有错误就跳转到指定页面
+                    alert("请前往邮箱进行确认！");
+                    location.href = data.msg;
+                }
+
+            }
+        })
+    });
+
+    // 当input框绑定获取焦点的事件，就将错误信息清空
+    $("#id_email").focus(function () {
+        $("#error_email").text("").removeClass("has-error errors");
+    });
+    $("#id_password").focus(function () {
+        $("#error_password").text("").removeClass("has-error errors");
+    });
+    $("#id_re_password").focus(function () {
+        $("#error_re_password").text("").removeClass("has-error errors");
+    });
+
+    // 给username input框绑定一个失去焦点的事件，失去焦点之后就校验用户名是否已被注册
+    $("#id_username").on("input", function () {
+        // 取到用户填写的值
+        var username = $(this).val();
+        if (username == null || username === "") {
+            $("#error_username").text("").removeClass("has-error");
+        } else {
+            // 发请求
+            $.ajax({
+                url: "/check_username_exist/",
+                type: "get",
+                data: {"username": username},
+                success: function (data) {
+                    if (data.status) {
+                        // 用户名已被注册
+                        $("#error_username").text(data.msg).addClass("has-error errors");
+                    } else {
+                        $("#error_username").text("").removeClass("has-error errors");
+                    }
+                }
+            })
+        }
+
+    })
+</script>
+{#<script>#}
+{#    window.onload = function () {#}
+{#        var errors = document.getElementById("errors").getElementsByTagName("p")#}
+{#        for (var i = 0; i < errors.length; i++) {#}
+{#            if (errors[i].className === "has-error") {#}
+{#                $(".has-error").addClass("errors")#}
+{#            }#}
+{#        }#}
+{#    }#}
+{#</script>#}
+</body>
+</html>

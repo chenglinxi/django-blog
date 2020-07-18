@@ -1,0 +1,250 @@
+{% extends "front_end/master.html" %}
+
+{% block other %}
+    <div class="article-detail div-back">
+        <div style="padding-top: 5px;padding-left: 20px;">
+            <a href="/home/" style="color: #00A67C;"><i class="fa fa-home" aria-hidden="true"></i></a> > <a
+                href="/article_category/{{ details.article.classification }}/"
+                style="color: #00A67C;">{{ details.article.classification }}</a> > <span
+                style="color: #999999;">{{ details.article.title }}</span>
+            <div style="border-top: solid #f0f0f0 1px;margin-top: 10px"></div>
+        </div>
+        <div>
+            <p style="font-size: 30px; text-align: left;padding: 10px 0 5px 20px;color: #44444A">{{ details.article.title }}</p>
+        </div>
+        <div style="padding-left: 20px;padding-bottom: 10px;color: #999999">
+            <table>
+                <tr>
+                    <td id="move_mouse"><i class="fa fa-folder-o" aria-hidden="true"></i><a
+                            href="/article_category/{{ details.article.classification }}/"
+                            style="color: #00A67C;"><span style="padding-left: 5px">{{ details.article.classification }}</span></a></td>
+                    <td id="move_mouse" style="padding-left: 20px"><i class="fa fa-user-o" aria-hidden="true"></i><a href="/author/{{ details.article.user.pk }}/"
+                                                                                                                     style="color: #00A67C;">
+                        <span style="padding-left: 5px">{{ details.article.user }}</span></a>
+                    </td>
+                    <td style="padding-left: 20px"><i class="fa fa-clock-o" aria-hidden="true"></i>&nbsp;<span
+                            style="color: #00A67C;">{{ details.article.create_time|date:'Y-m-d H:i' }}</span></td>
+                    <td style="padding-left: 20px"><i class="fa fa-eye" aria-hidden="true"><span
+                            style="color: #00A67C;padding-left: 5px">{{ details.article.views }}&nbsp;浏览</span></i></td>
+                    <td id="move_mouse" style="padding-left: 20px">
+                        <i class="fa fa-commenting-o fa-fw" aria-hidden="true"></i>
+                            <a href="javascript:void(0)" onclick="my_comment()" style="color: #00A67C;"><span>{{ details.article.comment_count }}&nbsp;评论</span></a>
+                    </td>
+                </tr>
+            </table>
+            <table style="margin-top: 5px;">
+                <tr>
+                    {% for tag in article_tags %}
+                        <td style="padding-right: 20px;float:left;" id="move_mouse"><i class="fa fa-tag" aria-hidden="true"></i><a
+                                href="/article_tag/{{ tag.name }}/"><span
+                                style="color: rgb(217, 83, 79);opacity: .7;">
+                            {{ tag.name }}
+                    </span></a></td>
+                    {% endfor %}
+                </tr>
+            </table>
+
+            <div style="border-top: solid #f0f0f0 1px;margin-top: 10px"></div>
+        </div>
+        <div style="padding-left: 20px;color: #555555;" id="details_content">
+            <p>{{ details.content | safe }}</p>
+            <div style="border-top: solid #f0f0f0 1px;margin-top: 10px"></div>
+        </div>
+        <div style="margin-top: 30px;text-align: center">
+            <p style="color: #555555;text-align: left;padding-left: 20px;">转载请注明：<span style="color: #E9415A">ChengLinXi</span> » <span
+                    style="color: #00A67C;">{{ details.article.title }}</span></p>
+        </div>
+        <div style="margin-top: 10px;text-align: center;color:#555555; ">
+            <p style="margin-top: 10px">更多文章、联系博主、技术交流</p>
+            <p style="margin-top: 10px">扫码或搜索：<span style="color: #E9405A;">爱学习的程序猫</span></p>
+            <p style="margin-top: 10px"><img style="width: 150px;height: 150px" src="/static/img/me_weixin.jpg"></p>
+            <p style="margin-top: 10px">微信公众号<span style="color: #E9415A;padding-left: 5px">扫一扫关注</span></p>
+        </div>
+        <div style="border-top: solid #f0f0f0 1px;margin-top: 10px"></div>
+        <!-- 相邻文章导航 -->
+        <div style="margin-top: 20px;">
+           {% if pre_article %}
+                <div style="float: left;padding-left: 10px;" id="move_mouse">
+                    <a href="/acticle_details/{{ pre_article.nid }}/" style="color: #00A67C;"><i
+                            class="fa fa-angle-double-left" aria-hidden="true"></i>&nbsp;<span>{{ pre_article.title }}&nbsp;</span></a>
+                </div>
+            {% endif %}
+            {% if next_article %}
+                <div style="padding-right: 10px;float: right;" id="move_mouse">
+                    <a href="/acticle_details/{{ next_article.nid }}/" style="color: #00A67C;"><span>{{ next_article.title }}</span>&nbsp;
+                        <i class="fa fa-angle-double-right" aria-hidden="true"></i></a>
+                </div>
+            {% endif %}
+
+            <div style="clear:both;margin-bottom: 20px;"></div>
+        </div>
+        <div style="width:100%; height:10px;clear:right;background: #eee;"></div>
+        <div class="div-back">
+            <!-- 发表评论 -->
+            <div id="comment_div">
+                <div style="padding: 10px 0 5px 10px">
+                    <div style="float: left">{% if request.user.username %}
+                        <img src="/media/{{ request.user.avatar }}" style="width: 35px;height: 40px">
+                    {% else %}
+                        <img src="/media/avatars/default.png" style="width: 35px;height: 40px">
+                    {% endif %}
+                    </div>
+                    <div style="float: left; margin: 10px 10px 0 10px;">
+                        <span style="color: #555555;font-size: 18px;">{{ request.user }}</span>
+                        <span style="font-size: 18px;color: #bbb;margin-left: 10px;">发表我的评论:</span>
+                    </div>
+                </div>
+                <div style="padding: 0 10px 0 10px">
+                <textarea name="" id="comment_content" cols="100%" rows="5"
+                          style="width:100%;height:100%;outline:none;"></textarea>
+                </div>
+                <div style="text-align: right;margin-bottom: 10px;padding: 0 10px 0 0">
+                    {% if request.user.username %}
+                        <button id="comment_btn" style="width: 80px; height: 30px;">提交评论</button>
+                    {% else %}
+                        <button onclick="myFunction()" style="width: 80px; height: 30px;">提交评论</button>
+                    {% endif %}
+                </div>
+            </div>
+            <div style="width:100%; height:10px;clear:both;background: #eee;"></div>
+
+            <!-- 显示评论 -->
+            <div style="padding:20px 10px;color: #E9415A;font-size: 20px">共有<span
+                    style="color: #01a252">{{ details.article.comment_count }}</span>条评论
+            </div>
+            {% load mptt_tags %}
+            <div class="row">
+                <!-- 遍历树形结构 -->
+                {% recursetree comments %}
+                    {% with comment=node %}
+                        <div class="{% if comment.reply_to %}
+                                    offset-1
+                                    {% else %}
+
+                                    {% endif %}" id="comment_elem_{{ comment.id }}">
+                            <div style="border-top: solid #f0f0f0 1px;margin-top: 10px"></div>
+                            <div style="padding-left: 10px;">
+                                <div style="float: left;">
+                                    <img src="/media/{{ comment.user.avatar }}"
+                                         style="width: 20px;height: 25px;">
+                                </div>
+                                <div style="float: left;margin: 2px 5px 2px 5px;">
+                                    <span style="color: #61CEC0;">
+                                    {{ comment.user }}
+                                    </span>
+                                </div>
+                                &nbsp;
+                                <!-- 显示被回复人 -->
+                                {% if comment.reply_to %}
+                                    <div style="float: left;margin: 2px 5px 2px 5px;">
+                                        <i class="fa fa-share" aria-hidden="true" style="color: #269ef1"></i>
+                                    </div>
+                                    <div style="float: left;margin: 2px 0 2px 5px;">
+                                        <img src="/media/{{ comment.reply_to.avatar }}"
+                                             style="width: 20px;height: 25px">
+                                    </div>
+                                    <div style="float: left;margin: 2px 5px 2px 5px;">
+                                        <span style="color: #f5536f">
+                                            {{ comment.reply_to }}
+                                        </span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div style="padding:5px 0 5px 20px;clear: both;">{{ comment.body }}</div>
+
+                            <div>
+                                <span style="color: gray;padding-left: 20px;">
+                                     <i class="fa fa-clock-o"
+                                        aria-hidden="true"></i>&nbsp;{{ comment.created|date:"Y-m-d H:i" }}
+                                </span>
+
+                                <!-- 加载 modal 的按钮 -->
+                                {% if request.user.username %}
+                                    <a href="javascript:void(0);" class="comment_reply"
+                                       id="comment_reply_{{ comment.id }}" style="margin-left: 20px;"
+                                       username="{{ comment.user.username }}"
+                                       comment_pk="{{ comment.pk }}"><span>回复</span></a>
+                                {% else %}
+                                    <a class="" href="#" onclick="myFunction()">回复</a>
+                                {% endif %}
+                            </div>
+
+                            {% if not comment.is_leaf_node %}
+                                <div class="children">
+                                    {{ children }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                    {% endwith %}
+                {% endrecursetree %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block jquery %}
+    <script>
+        // 没有登录弹出提示登录框
+        function myFunction() {
+            if (confirm("您还没有登录，请登录后再评论!")) {
+                window.location.href = "/login/"
+            } else {
+                window.close();
+            }
+        }
+
+        // 提交评论
+        var pid = "";
+        $("#comment_btn").click(function () {
+            var formData = new FormData();
+            var body = $("#comment_content").val()
+            if (pid) {
+                var index = body.indexOf("\n");
+                body = body.slice(index + 1)
+            }
+            if (body.length === 0) {
+                alert("请输入评论内容！")
+            } else {
+                formData.append("body", body);
+            }
+            formData.append("pid", pid)
+            formData.append("csrfmiddlewaretoken", "{{ csrf_token }}");
+            $.ajax({
+                url: "/comment/{{ details.article.nid }}/",
+                type: "post",
+                processData: false,
+                contentType: false,
+                data: formData,
+                success: function (data) {
+                    if (data.status === 1) {
+                        window.location.reload();
+                        // 清空文本框
+                        $("#comment_content").val('');
+                        // 清空pid
+                        pid = ""
+                        alert(data.msg)
+                    }
+                }
+            })
+        });
+
+        // 回复按钮事件
+        $(".comment_reply").click(function () {
+            $("#comment_content").val('');
+            $("#comment_content").focus();
+            var v = "@" + $(this).attr("username") + "\n";
+            $("#comment_content").val(v);
+            //pid赋值
+            pid = $(this).attr("comment_pk")
+
+        })
+
+    </script>
+    {% csrf_token %}
+    <script>
+        function my_comment() {
+            window.location.hash = "#comment_div";
+        }
+    </script>
+{% endblock %}

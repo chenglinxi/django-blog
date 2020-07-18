@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ChengLinXi&nbsp;|&nbsp;学习站点</title>
+    {% load static %}
+
+    <link rel="SHORTCUT ICON" href="{% static "/img/favicon.ico" %}"/>
+    <link rel="stylesheet" href="{% static '/font-awesome/css/font-awesome.css' %}">
+    <link rel="stylesheet" href="{% static '/my_style.css' %}">
+    <link rel="stylesheet" href="{% static '/semantic.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static '/prism_patched.min.css' %}"> {# 语法高亮 #}
+    {% block css %}
+
+    {% endblock %}
+</head>
+<body id="body">
+<div class="nav-div">
+    <nav>
+        <ul class="nav-main my_ul">
+            <li class="active"><a href="/home/"><span>ChengLinXi</span>&nbsp;<span
+                    style="font-size: 18px;color: #00aaaa;">个人站点</span></a></li>
+            <li id="drop"><a href="#">技术杂谈</a>
+                <ul class="drop menu1">
+                    {% load my_tags %}
+
+                    {% get_article_class %}
+                </ul>
+            </li>
+            <li><a href="#" onclick="search_show('search_show')"><i class="fa fa-search" aria-hidden="true"></i></a>
+            </li>
+        </ul>
+        {% if request.user.username %}
+            <div id="login"><a href="/admin/index/"><i
+                    class="fa fa-user "></i>&nbsp;<span>个人中心</span></a>
+                &nbsp;&nbsp;<a href="/logout/"><i class="fa fa-sign-out"
+                                                  aria-hidden="true"></i>&nbsp;<span>注销</span></a>
+            </div>
+        {% else %}
+            <div id="login"><a href="/login/"><i class="fa fa-user-o" aria-hidden="true"></i>&nbsp;<span>登录</span></a>
+            </div>
+        {% endif %}
+    </nav>
+    <div id="search_show">
+        <form role="search" method="get" id="searchform" action="/search_for/">
+            <input type="text" id="search_input" placeholder="输入关键字搜索" name="q">
+            <button type="submit" id="search_button">搜索</button>
+        </form>
+    </div>
+</div>
+
+<div class="subject-div">
+    <div class="div-left">
+        <div class="div-back" style="border: 0 solid #c0c0c0;">
+            {% block new_submit %}
+
+            {% endblock %}
+        </div>
+        <div class="div-back" style="border: 0 solid #c0c0c0;">
+            {% block classification %}
+
+            {% endblock %}
+        </div>
+        <div style="border: 0 solid #c0c0c0;">
+            {% block other %}
+
+            {% endblock %}
+        </div>
+    </div>
+    <div class="div-right">
+        <div>
+
+        </div>
+
+        <div>
+            {% load my_tags %}
+
+            {% get_data_menu %}
+        </div>
+        <div>
+            {% load my_tags %}
+
+            {% get_tags_list %}
+        </div>
+        <div>
+            {% load my_tags %}
+
+            {% get_ad_list %}
+        </div>
+        <div>
+            {% load my_tags %}
+
+            {% get_links %}
+        </div>
+        <div>
+            {% load my_tags %}
+
+            {% get_likes %}
+        </div>
+        <div>
+            {% include "front_end/weixin.html" %}
+        </div>
+    </div>
+</div>
+<div style="background-color: #0C0C0C; margin-top: 20px;">
+    <!--底部-->
+    <table style="width: 80%;text-align: center;margin-left: 10%; color: #ffffff">
+        <tr>
+            <td style="width: 25%;">
+                <h3>联&nbsp;&nbsp;&nbsp;&nbsp;系&nbsp;&nbsp;&nbsp;&nbsp;我</h3>
+                <p>Email：chenglinxi01@126.com</p>
+                <p>QQ：2456329144 </p>
+                <div style="border-right: solid #737373 1px;"></div>
+            </td>
+            <td style="width: 50%;" colspan="2">
+                <h3>Blog</h3>
+                <p>这是我的个人博客、会分享关于编程、写作、思考相关的任何内容，希望可以给来到这儿的人有所帮助，并且期待您的投稿！</p>
+                <div style="border-right: solid #737373 1px;"></div>
+            </td>
+            <td style="width: 25%;padding-left: 10px;padding-top: 10px;text-align: center"><img
+                    style="width: 120px;height: 120px" src="/static/img/me_weixin.jpg"></td>
+        </tr>
+        <tr>
+            <td colspan="4" style=";padding-bottom: 10px;">
+                <p><span>© 2020 chenglinxi.top 版权所有</span>&nbsp;
+                    <span><a href="http://www.beian.miit.gov.cn/" style="color: #ffffff;" >滇ICP备20005332号-1</a></span></p></td>
+        </tr>
+    </table>
+</div>
+<script src="{% static '/jquery-3.3.1.js' %}"></script>
+<script>
+    function search_show(id) {
+        if (document.getElementById) {
+            search = document.getElementById(id);
+            if (search.style.display === "block") {
+                search.style.display = "none";
+            } else {
+                search.style.display = "block";
+            }
+        }
+    }
+</script>
+<script>
+    $("#search_button").click(function () {
+        var key_value = $("#search_input").val();
+        if (key_value.length === 0) {
+            alert("请输入关键字!")
+            return false;
+
+        }
+    })
+</script>
+<script>
+    var tag_color = ["#15a287", "#5cb85c", "#d9534f", "#567e95", "#b433ff", "#00a67c", "#b37333", "#f60"];
+    var tag_li = $("#tags_list a");
+    var tag_num = tag_li.length;
+    {#var num = Math.floor(tag_num / tag_color.length);#}
+    for (var i = 0; i < tag_num; i++) {
+        tag_li[i].style.backgroundColor = tag_color[Math.floor(Math.random() * tag_color.length)];
+    }
+</script>
+
+<div>
+    {% block jquery %}
+
+    {% endblock %}
+</div>
+
+<a href="#" id="back_top" title="回顶部"><img src="{% static '/img/back_top.jpg' %}" alt="text"></a>
+<div></div>
+
+<script>
+    // 向上滚动的函数
+    $(function () {
+        $('#back_top').click(function () {
+            $('html,body').animate({scrollTop: 0}, 500);
+        });
+        $(window).scroll(function () {
+            if ($(this).scrollTop() > 300) {
+                $('#back_top').fadeIn(300);
+            } else {
+                $('#back_top').stop().fadeOut(300);
+            }
+        }).scroll();
+    });
+</script>
+
+</body>
+</html>

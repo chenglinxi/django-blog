@@ -1,0 +1,13 @@
+<div class="div-back">
+    <div style="text-align: left;padding-top: 10px;font-size: 18px;color:#737373;padding-left: 20px;">文章归档</div>
+    <div style="margin-top: 10px; border-top: solid #00a67c 1px;"></div>
+    <div style="padding: 0 10px 10px 10px;width: 100%;">
+        <ul class="my_ul" style=" list-style-type:none;text-align:left; padding: 0 10px 20px 10px;">
+            {% for archive in archive_list %}
+                <li style="float:left;width:50%;padding-bottom:5px;"><p class="home_p"><a href="/article_data/{{ archive.archive_ym }}/">
+                    {{ archive.archive_ym }}({{ archive.c }})</a></p></li>
+            {% endfor %}
+        </ul>
+        <div style="clear:both;"></div>
+    </div>
+</div>

@@ -1,0 +1,66 @@
+{% extends 'front_end/master.html' %}
+
+{% block classification %}
+    <!-- 文章分类 开始-->
+    {% for article in page.object_list %}
+        <div class="div-back avatar-div-img">
+            <div class="article-div"><p><span><a
+                    href="/article_category/{{ article.classification.title }}/">{{ article.classification.title }}
+                <i class="fa fa-gg" aria-hidden="true"></i></a></span>
+                <a href="/acticle_details/{{ article.pk }}/">{{ article.title }}</a></p>
+            </div>
+            <div class="media">
+                <div class="media-left">
+                    <div class="article-img">
+                        <a href="/acticle_details/{{ article.pk }}/">
+                            <img id="img-article" class="media-object" src="/media/{{ article.cover_photo }}" alt="...">
+                        </a>
+                    </div>
+                </div>
+                <div class="media-body">
+                    <p class="article-p">{{ article.desc }}</p>
+                </div>
+            </div>
+            <div class="article-footer">
+                        <span class="name"><i class="fa fa-user "></i>&nbsp;<a
+                                href="/author/{{ article.user.pk }}/">{{ article.user.username }}</a></span>
+                <span><i class="fa fa-clock-o"
+                         aria-hidden="true"></i>&nbsp;{{ article.create_time|date:'Y-m-d H:i' }}</span>
+                <span><i class="fa fa-commenting-o fa-fw"
+                         aria-hidden="true"></i>评论({{ article.comment_count }})</span>
+                <span><a onclick="likes_count({{ article.pk }})" href="#"
+                                                style="color: #F78585;font-weight: normal;"><i class="fa fa-heart-o" aria-hidden="true"></i>喜欢({{ article.like_count }})</a>
+                </span>
+            </div>
+            <div style="width:100%; height:10px;clear:both;"></div>
+        </div>
+        <div style="width:100%; height:10px;clear:both;background: #eee;"></div>
+    {% endfor %}
+    {% include "front_end/home_page.html" %}
+    <!--文章分类结束-->
+{% endblock %}
+{% block jquery %}
+    <script src="/static/jquery-3.3.1.js"></script>
+    <script type="text/javascript" src="http://pv.sohu.com/cityjson/getip.aspx" charset="utf-8"></script>
+    <script type="text/javascript">
+        function likes_count(id) {
+            var ip = returnCitySN.cip;
+            $.ajax({
+                url: "/article_like/",
+                type: "post",
+                data: {
+                    "article_id": id,
+                    "ip": ip,
+                },
+                success: function (data) {
+                    if (data['status'] === 1) {
+                        alert(data['msg']);
+                        window.location.reload(); //刷新当前页
+                    } else {
+                        alert(data['msg']);
+                    }
+                },
+            })
+        }
+    </script>
+{% endblock %}
